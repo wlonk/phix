@@ -1,7 +1,6 @@
 phix
 ====
 
-version number: 0.1.0
 author: Kit La Touche
 
 Overview
