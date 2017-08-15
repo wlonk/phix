@@ -7,22 +7,31 @@ import http.server
 import socketserver
 import subprocess
 
+import click
+
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 
 
-# TODO: make these configurable
-TYPE = 'dirhtml'
-PORT = 8000
-
-
 class SphinxEventHandler(PatternMatchingEventHandler):
+    def __init__(self, type_, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.type_ = type_
+
     def on_any_event(self, event):
-        subprocess.run(['make', TYPE])
+        subprocess.run(['make', self.type_])
 
 
 class RootedHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
-    root_dir = f'_build/{TYPE}'
+    @property
+    def root_dir(self):
+        return f'_build/{self.type_}'
+
+    def apply_root(self, path):
+        return posixpath.join(
+            self.root_dir,
+            posixpath.relpath(path, '/'),
+        )
 
     def list_directory(self, path):
         """Helper to produce a directory listing (absent index.html).
@@ -32,7 +41,7 @@ class RootedHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         interface the same as for send_head().
 
         """
-        path = self.root_dir + path
+        path = self.apply_root(path)
         super().list_directory(path)
 
     def translate_path(self, path):
@@ -55,7 +64,7 @@ class RootedHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             path = urllib.parse.unquote(path)
         path = posixpath.normpath(path)
         # This line added to parent class:
-        path = self.root_dir + path
+        path = self.apply_root(path)
         words = path.split('/')
         words = filter(None, words)
         path = os.getcwd()
@@ -70,8 +79,12 @@ class RootedHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         return path
 
 
-def main():
+@click.command()
+@click.option('-t', '--type', 'type_', default='dirhtml')
+@click.option('-p', '--port', 'port', default=8000)
+def main(type_, port):
     event_handler = SphinxEventHandler(
+        type_,
         patterns=['*.rst'],
         ignore_patterns=['_build/*'],
     )
@@ -81,6 +94,11 @@ def main():
     observer.start()
 
     handler = RootedHTTPRequestHandler
+    handler.type_ = type_
 
-    with socketserver.TCPServer(("", PORT), handler) as httpd:
+    with socketserver.TCPServer(("", port), handler) as httpd:
         httpd.serve_forever()
+
+
+if __name__ == "__main__":
+    main()
