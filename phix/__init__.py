@@ -80,6 +80,7 @@ class RootedHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
 
 @click.command()
+@click.version_option()
 @click.option('-t', '--type', 'type_', default='dirhtml')
 @click.option('-p', '--port', 'port', default=8000)
 def main(type_, port):
