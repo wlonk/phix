@@ -25,7 +25,7 @@ class SphinxEventHandler(PatternMatchingEventHandler):
 class RootedHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     @property
     def root_dir(self):
-        return f'_build/{self.type_}'
+        return '_build/{type_}'.format(type_=self.type_)
 
     def apply_root(self, path):
         return posixpath.join(
@@ -97,8 +97,12 @@ def main(type_, port):
     handler = RootedHTTPRequestHandler
     handler.type_ = type_
 
-    with socketserver.TCPServer(("", port), handler) as httpd:
-        httpd.serve_forever()
+    server = socketserver.TCPServer(("", port), handler)
+
+    try:
+        server.serve_forever()
+    finally:
+        server.shutdown()
 
 
 if __name__ == "__main__":

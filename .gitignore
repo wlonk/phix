@@ -9,6 +9,7 @@ dist/
 .idea
 
 # Packages
+.eggs/
 *.egg
 *.egg-info
 build
@@ -29,6 +30,7 @@ pip-log.txt
 .coverage
 .tox
 nosetests.xml
+.cache/
 
 # Complexity
 output/*.html
