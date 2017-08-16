@@ -41,11 +41,15 @@ setup(
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'License :: OSI Approved :: MIT License',
     ],
     keywords=['Sphinx'],
-    packages=find_packages(exclude=['docs']),
-    python_requires='>=3.6',
+    packages=find_packages(exclude=['docs', 'tests*']),
+    python_requires='>=3.0',
     entry_points={
         'console_scripts': [
             'phix=phix:main',
@@ -54,4 +58,6 @@ setup(
     include_package_data=True,
     install_requires=install_requires,
     dependency_links=dependency_links,
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest', 'pytest-mock'],
 )
