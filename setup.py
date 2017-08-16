@@ -44,7 +44,7 @@ setup(
         'License :: OSI Approved :: MIT License',
     ],
     keywords=['Sphinx'],
-    packages=find_packages(exclude=['docs', 'tests*']),
+    packages=find_packages(exclude=['docs']),
     python_requires='>=3.6',
     entry_points={
         'console_scripts': [
