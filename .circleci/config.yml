@@ -8,7 +8,7 @@ jobs:
     docker:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
-      - image: circleci/python:3.6.1
+      - image: randomknowledge/docker-pyenv-tox
       
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -30,9 +30,9 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            python3 -m venv venv
+            python3.6 -m venv venv
             . venv/bin/activate
-            pip install -r requirements.txt
+            pip install tox tox-pyenv
 
       - save_cache:
           paths:
@@ -42,7 +42,9 @@ jobs:
       # run tests!
       - run:
           name: run tests
-          command: tox
+          command: |
+            . venv/bin/activate
+            tox
 
       - store_artifacts:
           path: test-reports
