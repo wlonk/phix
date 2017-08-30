@@ -11,7 +11,7 @@ from os import path
 from shutil import rmtree
 
 
-__version__ = '0.5.0'
+__version__ = '0.5.1'
 
 here = path.abspath(path.dirname(__file__))
 
