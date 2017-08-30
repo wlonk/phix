@@ -84,10 +84,12 @@ class RootedHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 @click.option('-t', '--type', 'type_', default='dirhtml')
 @click.option('-p', '--port', 'port', default=8000)
 def main(type_, port):
+    patterns = ['*.rst']
+    ignore_patterns = ['_build/*']
     event_handler = SphinxEventHandler(
         type_,
-        patterns=['*.rst'],
-        ignore_patterns=['_build/*'],
+        patterns=patterns,
+        ignore_patterns=ignore_patterns,
     )
 
     observer = Observer()
@@ -99,6 +101,13 @@ def main(type_, port):
 
     server = socketserver.TCPServer(("", port), handler)
 
+    print("Listening for changes to {}.".format(
+        ", ".join(patterns)
+    ))
+    print("Serving from _build/{} on 0.0.0.0:{}...".format(
+        type_,
+        port,
+    ))
     try:
         server.serve_forever()
     finally:
