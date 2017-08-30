@@ -101,15 +101,25 @@ def main(type_, port):
 
     server = socketserver.TCPServer(("", port), handler)
 
-    print("Listening for changes to {}.".format(
-        ", ".join(patterns)
+    click.echo(click.style(
+        "Listening for changes to {}.".format(
+            ", ".join(patterns)
+        ),
+        bold=True,
+        fg='green',
     ))
-    print("Serving from _build/{} on 0.0.0.0:{}...".format(
-        type_,
-        port,
+    click.echo(click.style(
+        "Serving from _build/{} on 0.0.0.0:{}...".format(
+            type_,
+            port,
+        ),
+        bold=True,
+        fg='green',
     ))
     try:
         server.serve_forever()
+    except KeyboardInterrupt:
+        click.echo(click.style("Exiting..."))
     finally:
         server.shutdown()
 
