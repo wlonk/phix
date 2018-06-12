@@ -20,6 +20,8 @@ Options:
    subdirectory to serve. Defaults to ``dirhtml``.
 *  ``-p``, ``--port``: the port to serve the docs on. Defaults to
    ``8000``.
+*  ``-r``, ``--root``: the root directory of the Sphinx project to build
+   and serve. Defaults to ``.``.
 *  ``--help``: Show the help.
 *  ``--version``: Show the version.
 
