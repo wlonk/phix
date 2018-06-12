@@ -14,18 +14,22 @@ from watchdog.events import PatternMatchingEventHandler
 
 
 class SphinxEventHandler(PatternMatchingEventHandler):
-    def __init__(self, type_, *args, **kwargs):
+    def __init__(self, type_, cwd, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.type_ = type_
+        self.cwd = cwd
 
     def on_any_event(self, event):
-        subprocess.run(['make', self.type_])
+        subprocess.run(['make', self.type_], cwd=self.cwd)
 
 
 class RootedHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     @property
     def root_dir(self):
-        return '_build/{type_}'.format(type_=self.type_)
+        return '{cwd}/_build/{type_}'.format(
+            cwd=self.cwd,
+            type_=self.type_,
+        )
 
     def apply_root(self, path):
         return posixpath.join(
@@ -83,20 +87,26 @@ class RootedHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 @click.version_option()
 @click.option('-t', '--type', 'type_', default='dirhtml')
 @click.option('-p', '--port', 'port', default=8000)
-def main(type_, port):
-    patterns = ['*.rst']
+@click.option('-r', '--root', 'root', default='.')
+def main(type_, port, root):
+    patterns = [
+        '*.rst',
+        os.path.abspath(os.path.join(root, 'conf.py')),
+    ]
     ignore_patterns = ['_build/*']
     event_handler = SphinxEventHandler(
         type_,
+        root,
         patterns=patterns,
         ignore_patterns=ignore_patterns,
     )
 
     observer = Observer()
-    observer.schedule(event_handler, '.', recursive=True)
+    observer.schedule(event_handler, root, recursive=True)
     observer.start()
 
     handler = RootedHTTPRequestHandler
+    handler.cwd = root
     handler.type_ = type_
 
     server = socketserver.TCPServer(("", port), handler)
@@ -109,7 +119,7 @@ def main(type_, port):
         fg='green',
     ))
     click.echo(click.style(
-        "Serving from _build/{} on 0.0.0.0:{}...".format(
+        "Serving from _build/{} on http://localhost:{}...".format(
             type_,
             port,
         ),
